@@ -1,17 +1,6 @@
 import numpy as np
 
 
-def is_valid_index(idx):
-    for i in idx:
-        if i not in [0, 1, 2]:
-            return False
-    return True
-
-
-def to_move(state):
-    return state[0]
-
-
 def actions_check_advance(state, src):
     direction = state[1][src[0], src[1]]
     dst = (src[0] + direction, src[1])
@@ -101,8 +90,33 @@ def is_terminal(state):
     return False
 
 
+def is_valid_index(idx):
+    for i in idx:
+        if i not in [0, 1, 2]:
+            return False
+    return True
+
+
+def new_game():
+    board = np.zeros((3, 3), dtype=int)
+    board[0, :] += 1
+    board[2, :] -= 1
+
+    return (-1, board)
+
+
 def result(state, act):
-    return act[0](state, act[1])
+    new_turn = state[0] * -1
+    new_board = act[0](state, act[1])
+    return (new_turn, new_board)
+
+
+def to_move(state):
+    return state[0]
+
+
+def to_vector(state):
+    return np.concatenate((np.array(state[0]), state[1]), axis=None)
 
 
 def utility(state):
@@ -121,28 +135,3 @@ def utility(state):
 
     else:
         return 0
-
-
-class GameBoard:
-    def __init__(self):
-        self.turn = -1
-        self.board = np.zeros((3, 3), dtype=int)
-        self.board[0, :] += 1
-        self.board[2, :] -= 1
-
-    def __str__(self):
-        self.str_player = "Current Player: Max\nBoard:\n"
-        if self.turn == -1:
-            self.str_player = "Current Player: Min\nBoard:\n"
-
-        return self.str_player + "  " + str(self.board).replace("\n", "\n  ")
-
-    def get_state(self):
-        return (self.turn, self.board)
-
-    def get_vector(self):
-        return np.concatenate((np.array([self.turn]), self.board), axis=None)
-
-    def update(self, act):
-        self.board = result(self.get_state(), act)
-        self.turn *= -1
