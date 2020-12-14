@@ -9,8 +9,9 @@ def minimax_search(state):
 
 
 def max_value(state):
+    move = None
     if game.is_terminal(state):
-        return game.utility(state), None
+        return game.utility(state), move
 
     v = -20
     for act in game.actions(state):
@@ -24,8 +25,9 @@ def max_value(state):
 
 
 def min_value(state):
+    move = None
     if game.is_terminal(state):
-        return game.utility(state), None
+        return game.utility(state), move
 
     v = 20
     for act in game.actions(state):
