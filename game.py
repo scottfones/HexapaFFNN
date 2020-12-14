@@ -108,7 +108,7 @@ def result(state, act):
 def utility(state):
     # Min in Top Row
     if -1 in state[1][0, :]:
-        return -1 
+        return -1
 
     # Max in Bottom Row
     elif 1 in state[1][2, :]:
@@ -117,13 +117,11 @@ def utility(state):
     # No Moves for Current Player
     # action list empty == False
     elif not actions(state):
-        return -1*state[0] 
+        return -1 * state[0]
 
     else:
         return 0
-    
 
-    
 
 class GameBoard:
     def __init__(self):
@@ -143,9 +141,7 @@ class GameBoard:
         return (self.turn, self.board)
 
     def get_vector(self):
-        return np.concatenate(
-            (np.array([self.turn]), self.board), axis=None
-        )
+        return np.concatenate((np.array([self.turn]), self.board), axis=None)
 
     def update(self, act):
         self.board = result(self.get_state(), act)
