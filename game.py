@@ -105,6 +105,10 @@ def new_game():
     return (-1, board)
 
 
+def print_state(state):
+    pd = {-1: 'Min', 1: 'Max'}
+    print(f'Current Player: {pd[state[0]]}\n{state[1]}')
+
 def result(state, act):
     new_turn = state[0] * -1
     new_board = act[0](state, act[1])
