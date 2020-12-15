@@ -117,5 +117,4 @@ class FeedForwardNet:
         dL = np.sum(-2 * (train_ans - y_hat))
 
         self.back_delta = []
-        d0 = dL*self.activ_func(self.forward[-2], True)
-        
+        d0 = dL * self.activ_func(self.forward[-2], True)
