@@ -174,20 +174,14 @@ class FeedForwardNet:
         L = np.power(train_ans - self.forward_ai[-1], 2)  # L2 loss function
         dL = -2 * (train_ans - self.forward_ai[-1])  # derivative of L2
         for i in reversed(range(len(self.network_layers))):
-            # print(f'Working {i}')
             z_i = self.forward_zi[i]
             gp_i = self.activ_func(z_i, True)  # derivative of activation function
 
             if i == len(self.network_layers) - 1:
-                # print(f'dL: {dL.shape}')
-                # print(f'gp_i: {gp_i.shape}')
                 d_i = dL * gp_i
             else:
                 d_ip1 = self.back_delta[-1]  # most recent delta value
                 w_ip1 = self.network_layers[i + 1][0]  # weights
-                # print(f'd_ip1: {d_ip1.shape}')
-                # print(f'w_ip1: {w_ip1.shape}')
-                # print(f'gp_i: {gp_i.shape}')
                 d_i = (w_ip1 @ d_ip1) * gp_i
 
             self.back_delta.append(d_i)
@@ -196,16 +190,11 @@ class FeedForwardNet:
         for i, layer in enumerate(self.network_layers):
             w_i = layer[0]
             d_i = self.back_delta[i]
-            # print(f'working: {i}')
+
             # input to hidden transition
             if i == 0:
                 x_i = self.train_data
-                # print(f'd_i: {d_i.shape}')
-                # print(f'x_i: {x_i.shape}')
                 w_i += (x_i @ d_i.T) * self.alpha
             else:
                 a_i = self.forward_ai[i - 1]
-                # print(f'd_i: {d_i.shape}')
-                # print(f'a_i: {a_i.shape}')
-                # print(f'w_i: {w_i.shape}')
                 w_i += (a_i @ d_i.T) * self.alpha
