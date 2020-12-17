@@ -25,11 +25,8 @@ Notes:
             "Perceived Error" for hidden layer following input vector
 
     We define:
-        let n_ij be node j in layer i
-            delta_n_ij 
 """
 import numpy as np
-from abc import ABC, abstractmethod
 from typing import Callable
 
 
@@ -73,7 +70,7 @@ class FeedForwardNet:
         # Hidden Layers
         for i in range(self.hidden_layers):
             if i > 0:
-                if type(self.network_layers[i - 1]) is tuple:
+                if type(self.network_layers[i - 1]) is list:
                     m = self.network_layers[i - 1][0].shape[1]
                 else:
                     m = self.network_layers[i - 1].shape[1]
@@ -81,17 +78,20 @@ class FeedForwardNet:
                 m = self.in_units
             n = self.hidden_units
 
-            tmp_w = np.random.randn(m, n) * self.alpha
+            tmp_w = np.random.normal(loc=0.0, scale=0.5, size=(m, n))
             tmp_b = np.zeros((n, 1))
-            self.network_layers.append((tmp_w, tmp_b))
+            self.network_layers.append([tmp_w, tmp_b])
 
         # Output Layer
-        tmp_w = np.random.randn(self.hidden_units, self.out_units) * self.alpha
+        tmp_w = np.random.normal(
+            loc=0.0, scale=0.5, size=(self.hidden_units, self.out_units)
+        )
         tmp_b = np.zeros((self.out_units, 1))
-        self.network_layers.append((tmp_w, tmp_b))
+        self.network_layers.append([tmp_w, tmp_b])
 
     def classify(self, train_data: np.ndarray):
-        self.forward = []
+        self.forward_zi = []
+        self.forward_ai = []
         self.train_data = train_data
 
         # Input to Hidden Transition
@@ -99,22 +99,59 @@ class FeedForwardNet:
         w_0 = self.network_layers[0][0]
         x = train_data
 
-        a_i = self.activ_func(w_0.T @ x + b_0)
-        self.forward.append(a_i)
+        z_i = w_0.T @ x + b_0
+        a_i = self.activ_func(z_i)
+        self.forward_zi.append(z_i)
+        self.forward_ai.append(a_i)
 
         # Work Remaining Layers
         for i in range(1, len(self.network_layers)):
             b_i = self.network_layers[i][1]
             w_i = self.network_layers[i][0]
-            a_im1 = self.forward[i - 1]
+            a_im1 = self.forward_ai[i - 1]
 
-            a_i = self.activ_func(w_i.T @ a_im1 + b_i)
-            self.forward.append(a_i)
+            z_i = w_i.T @ a_im1 + b_i
+            a_i = self.activ_func(z_i)
+            self.forward_zi.append(z_i)
+            self.forward_ai.append(a_i)
 
     def update_weights(self, train_ans: np.ndarray):
-        y_hat = self.forward[-1]
-        L = np.sum(np.power((train_ans - y_hat), 2))
-        dL = np.sum(-2 * (train_ans - y_hat))
-
         self.back_delta = []
-        d0 = dL * self.activ_func(self.forward[-2], True)
+
+        L = np.power(train_ans - self.forward_ai[-1], 2)
+        dL = -2 * (train_ans - self.forward_ai[-1])
+        for i in reversed(range(len(self.network_layers))):
+            # print(f'Working {i}')
+            z_i = self.forward_zi[i]
+            gp_i = self.activ_func(z_i, True)  # g prime
+
+            if i == len(self.network_layers) - 1:
+                # print(f'dL: {dL.shape}')
+                # print(f'gp_i: {gp_i.shape}')
+                d_i = dL * gp_i
+            else:
+                d_ip1 = self.back_delta[-1]
+                w_ip1 = self.network_layers[i + 1][0]
+                # print(f'd_ip1: {d_ip1.shape}')
+                # print(f'w_ip1: {w_ip1.shape}')
+                # print(f'gp_i: {gp_i.shape}')
+                d_i = (w_ip1 @ d_ip1) * gp_i
+
+            self.back_delta.append(d_i)
+
+        self.back_delta.reverse()
+        for i, layer in enumerate(self.network_layers):
+            w_i = layer[0]
+            d_i = self.back_delta[i]
+            # print(f'working: {i}')
+            if i == 0:
+                x_i = self.train_data
+                # print(f'd_i: {d_i.shape}')
+                # print(f'x_i: {x_i.shape}')
+                w_i += (x_i @ d_i.T) * self.alpha
+            else:
+                a_i = self.forward_ai[i - 1]
+                # print(f'd_i: {d_i.shape}')
+                # print(f'a_i: {a_i.shape}')
+                # print(f'w_i: {w_i.shape}')
+                w_i += (a_i @ d_i.T) * self.alpha
