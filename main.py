@@ -1,12 +1,31 @@
 """main.py initializes the game"""
 
-import gameboard
+import game
+import minimax
+import graph
+import random
 
 
 def main():
     """Create the board and start the game."""
 
-    g = gameboard.GameBoard()
+    ps = minimax.gen_states()
+    pt = minimax.gen_table(ps)
+
+    net = graph.FeedForwardNet(graph.activation_sigmoid, 0.5, 10, 100, 18, 9)
+
+    for i in range(500):
+        d = random.choice(pt)
+        net.classify(d)
+        net.update_weights(pt[d])
+
+    for i in range(5):
+        d = random.choice(pt)
+        net.classify(d)
+
+        print(f"Trying: {d}")
+        print(f"Classified: {net.forward_ai[-1]}")
+        print(f"Correct Classification: {pt[d]}")
 
 
 if __name__ == "__main__":
