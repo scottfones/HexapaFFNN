@@ -12,7 +12,7 @@ def main():
     ps = minimax.gen_states()
     pt = minimax.gen_table(ps)
 
-    net = graph.FeedForwardNet(graph.activation_sigmoid, 0.5, 10, 100, 18, 9)
+    net = graph.FeedForwardNet(graph.activation_sigmoid, 0.01, 20, 10, 10, 10)
 
     for i in range(500):
         d = random.choice(pt)

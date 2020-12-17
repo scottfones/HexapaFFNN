@@ -3,7 +3,7 @@ import game
 import numpy as np
 
 policy_states = []
-policy_table = {}
+policy_table = []
 
 
 def gen_states() -> set:
@@ -14,7 +14,7 @@ def gen_states() -> set:
     """
     g = game.new_game()
     _ = minimax_search(g, True)
-    return set(policy_states)
+    return policy_states
 
 
 def gen_table(ps: set) -> dict:
@@ -26,10 +26,10 @@ def gen_table(ps: set) -> dict:
     Returns:
         dict: Initial State -> Next State mapping
     """
-
     for s in ps:
         m = minimax_search(s)
-        policy_table[game.to_vector(s) : game.to_vector(m)]
+        if m:
+            policy_table.append((game.to_vector(s), game.to_vector(m)))
     return policy_table
 
 
@@ -69,12 +69,12 @@ def max_value(state: np.ndarray, fill_states: bool = False) -> Tuple[int, Tuple]
 
     v = -20
     for act in game.actions(state):
-        if fill_states:
+        if fill_states and act:
             policy_states.append(game.result(state, act))
 
         v2, act2 = min_value(game.result(state, act), fill_states)
 
-        if fill_states:
+        if fill_states and act2:
             policy_states.append(game.result(state, act2))
 
         if v2 > v:
@@ -100,12 +100,12 @@ def min_value(state: np.ndarray, fill_states: bool = False) -> Tuple[int, Tuple]
 
     v = 20
     for act in game.actions(state):
-        if fill_states:
+        if fill_states and act:
             policy_states.append(game.result(state, act))
 
         v2, act2 = max_value(game.result(state, act), fill_states)
 
-        if fill_states:
+        if fill_states and act2:
             policy_states.append(game.result(state, act2))
 
         if v2 < v:
