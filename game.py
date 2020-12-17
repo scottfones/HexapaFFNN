@@ -7,6 +7,7 @@ Location = Tuple[int, int]
 """Type alias for list of legal actions"""
 ActionList = List[Tuple[Callable, Location]]
 
+
 def actions_check_advance(state: np.ndarray, src: Location) -> bool:
     """Check if advance is a legal move.
 
@@ -137,7 +138,7 @@ def capture_right(state: np.ndarray, src: Location) -> np.ndarray:
     return finish_action(state, dst, src)
 
 
-def finish_action(state: np.ndarray, dst: Location, src: Location)-> np.ndarray:
+def finish_action(state: np.ndarray, dst: Location, src: Location) -> np.ndarray:
     """Complete an action by moving the pawn from src to dst and backfilling with 0.
 
     Args:
@@ -210,7 +211,7 @@ def print_state(state: np.ndarray) -> NoReturn:
         state (np.ndarray): Current state
 
     Returns:
-        NoReturn: 
+        NoReturn:
     """
     pd = {-1: "Min", 1: "Max"}
     print(f"Current Player: {pd[state[0]]}\n{state[1]}")
