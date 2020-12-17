@@ -29,7 +29,8 @@ def gen_table(ps: set) -> dict:
     for s in ps:
         m = minimax_search(s)
         if m:
-            policy_table.append((game.to_vector(s), game.to_vector(m)))
+            tup = (game.to_vector(s), game.to_vector(m))
+            policy_table.append(tup)
     return policy_table
 
 

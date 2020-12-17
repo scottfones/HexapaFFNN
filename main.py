@@ -8,7 +8,6 @@ def main():
     """Create the board and start the game."""
     ps = minimax.gen_states()
     pt = minimax.gen_table(ps)
-
     net = graph.FeedForwardNet(graph.activation_sigmoid, 0.01, 20, 10, 10, 10)
 
     for i in range(500):
@@ -20,9 +19,9 @@ def main():
         d = random.choice(pt)
         net.classify(d)
 
-        print(f"Trying: {d}")
+        print(f"Trying: {d[0]}")
         print(f"Classified: {net.forward_ai[-1]}")
-        print(f"Correct Classification: {pt[d]}")
+        print(f"Correct Classification: {d[1]}")
 
 
 if __name__ == "__main__":
