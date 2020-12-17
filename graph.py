@@ -68,7 +68,7 @@ def activation_sigmoid(x: np.ndarray, ddx: bool = False) -> np.ndarray:
 
 
 class FeedForwardNet:
-    """Feed Forward Network Class"""
+    """Feed Forward Network Class."""
 
     def __init__(
         self,
@@ -79,7 +79,7 @@ class FeedForwardNet:
         in_units: int,
         out_units: int,
     ):
-        """FeedForwardNet Constructor
+        """FeedForwardNet Constructor.
 
         Args:
             act_func (Callable): Activation function. activation_relu or activation_sigmoid
@@ -129,7 +129,7 @@ class FeedForwardNet:
         self.network_layers.append([tmp_w, tmp_b])
 
     def classify(self, train_data: np.ndarray):
-        """Classify input data
+        """Classify input data.
 
         Follows description on p 752 as per notes at top of file.
 

@@ -159,7 +159,7 @@ def finish_action(state: np.ndarray, dst: Location, src: Location) -> np.ndarray
 
 
 def is_terminal(state: np.ndarray) -> bool:
-    """Check for terminal game state
+    """Check for terminal game state.
 
     Args:
         state (np.ndarray): Current state
@@ -174,7 +174,7 @@ def is_terminal(state: np.ndarray) -> bool:
 
 
 def is_valid_index(idx: Location) -> bool:
-    """Validate index is within bounds of board
+    """Validate index is within bounds of board.
 
     Args:
         idx (Location): m by n index of pawn
@@ -205,7 +205,7 @@ def new_game() -> np.ndarray:
 
 
 def print_state(state: np.ndarray) -> NoReturn:
-    """Print board state in more legible format
+    """Print board state in more legible format.
 
     Args:
         state (np.ndarray): Current state
@@ -233,7 +233,7 @@ def result(state: np.ndarray, act: Tuple[Callable, Location]) -> Tuple[int, np.n
 
 
 def to_move(state: np.ndarray) -> int:
-    """Return the current player
+    """Return the current player.
 
     Args:
         state (np.ndarray): Current state
@@ -245,7 +245,7 @@ def to_move(state: np.ndarray) -> int:
 
 
 def to_vector(state: np.ndarray) -> np.ndarray:
-    """Convert tuple state to vector format
+    """Convert tuple state to vector format.
 
     Args:
         state (np.ndarray): Current state
@@ -257,7 +257,7 @@ def to_vector(state: np.ndarray) -> np.ndarray:
 
 
 def utility(state: np.ndarray) -> int:
-    """Utility function
+    """Calculate state utility.
 
     Args:
         state (np.ndarray): Current state

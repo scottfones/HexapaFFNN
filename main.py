@@ -1,5 +1,3 @@
-"""main.py initializes the game"""
-
 import game
 import minimax
 import graph
@@ -8,7 +6,6 @@ import random
 
 def main():
     """Create the board and start the game."""
-
     ps = minimax.gen_states()
     pt = minimax.gen_table(ps)
 
