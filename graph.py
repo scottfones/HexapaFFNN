@@ -30,14 +30,36 @@ import numpy as np
 from typing import Callable
 
 
-def activation_relu(x, ddx=False):
+def activation_relu(x: np.ndarray, ddx: bool = False) -> np.ndarray:
+    """Define the ReLU function and its derivative.
+
+    Optionally access the derivative value by passing ddx=true.
+
+    Args:
+        x (np.ndarray): Array to evaluate
+        ddx (bool, optional): Evaluate with derivative. Defaults to False.
+
+    Returns:
+        np.ndarray: Function evaluation
+    """
     if ddx:
         return np.where(x > 0, 1, 0)
     else:
         return np.maximum(0, x)
 
 
-def activation_sigmoid(x, ddx=False):
+def activation_sigmoid(x: np.ndarray, ddx: bool = False) -> np.ndarray:
+    """Define the Sigmoid function and its derivative.
+
+    Optionally access the derivative value by passing ddx=true.
+
+    Args:
+        x (np.ndarray): Array to evaluate
+        ddx (bool, optional): Evaluate with derivative. Defaults to False.
+
+    Returns:
+        np.ndarray: Function evaluation
+    """
     if ddx:
         return activation_sigmoid(x) * (1 - activation_sigmoid(x))
 
@@ -46,6 +68,8 @@ def activation_sigmoid(x, ddx=False):
 
 
 class FeedForwardNet:
+    """Feed Forward Network Class"""
+
     def __init__(
         self,
         act_func: Callable,
@@ -55,6 +79,16 @@ class FeedForwardNet:
         in_units: int,
         out_units: int,
     ):
+        """FeedForwardNet Constructor
+
+        Args:
+            act_func (Callable): Activation function. activation_relu or activation_sigmoid
+            alpha (float): Learning rate
+            h_layers (int): Number of hidden layers
+            h_units (int): Number of units per hidden layer
+            in_units (int): Number of inputs
+            out_units (int): Number of outputs
+        """
         self.activ_func = act_func
         self.alpha = alpha
         self.hidden_layers = h_layers
@@ -65,6 +99,11 @@ class FeedForwardNet:
         self.create_network()
 
     def create_network(self):
+        """Create the network given constructor options.
+
+        Follows notes at top of the file to crete a
+        network as defined in the textbook.
+        """
         self.network_layers = []
 
         # Hidden Layers
@@ -90,6 +129,13 @@ class FeedForwardNet:
         self.network_layers.append([tmp_w, tmp_b])
 
     def classify(self, train_data: np.ndarray):
+        """Classify input data
+
+        Follows description on p 752 as per notes at top of file.
+
+        Args:
+            train_data (np.ndarray): Input data
+        """
         self.forward_zi = []
         self.forward_ai = []
         self.train_data = train_data
@@ -116,22 +162,29 @@ class FeedForwardNet:
             self.forward_ai.append(a_i)
 
     def update_weights(self, train_ans: np.ndarray):
+        """Update weights using the L2 loss function and a known good value.
+
+        Follows desctiption on p 755 as per notes at top of file.
+
+        Args:
+            train_ans (np.ndarray): Known good output given input data
+        """
         self.back_delta = []
 
-        L = np.power(train_ans - self.forward_ai[-1], 2)
-        dL = -2 * (train_ans - self.forward_ai[-1])
+        L = np.power(train_ans - self.forward_ai[-1], 2)  # L2 loss function
+        dL = -2 * (train_ans - self.forward_ai[-1])  # derivative of L2
         for i in reversed(range(len(self.network_layers))):
             # print(f'Working {i}')
             z_i = self.forward_zi[i]
-            gp_i = self.activ_func(z_i, True)  # g prime
+            gp_i = self.activ_func(z_i, True)  # derivative of activation function
 
             if i == len(self.network_layers) - 1:
                 # print(f'dL: {dL.shape}')
                 # print(f'gp_i: {gp_i.shape}')
                 d_i = dL * gp_i
             else:
-                d_ip1 = self.back_delta[-1]
-                w_ip1 = self.network_layers[i + 1][0]
+                d_ip1 = self.back_delta[-1]  # most recent delta value
+                w_ip1 = self.network_layers[i + 1][0]  # weights
                 # print(f'd_ip1: {d_ip1.shape}')
                 # print(f'w_ip1: {w_ip1.shape}')
                 # print(f'gp_i: {gp_i.shape}')
@@ -139,11 +192,12 @@ class FeedForwardNet:
 
             self.back_delta.append(d_i)
 
-        self.back_delta.reverse()
+        self.back_delta.reverse()  # reverse so all arrays are syncd
         for i, layer in enumerate(self.network_layers):
             w_i = layer[0]
             d_i = self.back_delta[i]
             # print(f'working: {i}')
+            # input to hidden transition
             if i == 0:
                 x_i = self.train_data
                 # print(f'd_i: {d_i.shape}')
