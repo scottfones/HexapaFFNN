@@ -27,7 +27,8 @@ Notes:
     We define:
 """
 import numpy as np
-from typing import Callable
+import random
+from typing import Callable, NoReturn
 
 
 def activation_relu(x: np.ndarray, ddx: bool = False) -> np.ndarray:
@@ -117,14 +118,16 @@ class FeedForwardNet:
                 m = self.in_units
             n = self.hidden_units
 
-            tmp_w = np.random.normal(loc=0.0, scale=0.5, size=(m, n))
+            # tmp_w = np.random.normal(loc=0.0, scale=0.5, size=(m, n))
+            tmp_w = np.random.randn(m, n) * 0.01
             tmp_b = np.zeros((n, 1))
             self.network_layers.append([tmp_w, tmp_b])
 
         # Output Layer
-        tmp_w = np.random.normal(
-            loc=0.0, scale=0.5, size=(self.hidden_units, self.out_units)
-        )
+        # tmp_w = np.random.normal(
+        #    loc=0.0, scale=0.5, size=(self.hidden_units, self.out_units)
+        # )
+        tmp_w = np.random.randn(self.hidden_units, self.out_units) * 0.01
         tmp_b = np.zeros((self.out_units, 1))
         self.network_layers.append([tmp_w, tmp_b])
 
@@ -164,7 +167,7 @@ class FeedForwardNet:
     def update_weights(self, train_ans: np.ndarray):
         """Update weights using the L2 loss function and a known good value.
 
-        Follows desctiption on p 755 as per notes at top of file.
+        Follows description on p 755 as per notes at top of file.
 
         Args:
             train_ans (np.ndarray): Known good output given input data
@@ -198,3 +201,22 @@ class FeedForwardNet:
             else:
                 a_i = self.forward_ai[i - 1]
                 w_i += (a_i @ d_i.T) * self.alpha
+
+
+def test_adder(net: FeedForwardNet, train_epochs: int = 100) -> NoReturn:
+    data = [
+        (np.array([[0], [1]]), np.array([[0], [1]])),
+        (np.array([[0], [0]]), np.array([[0], [0]])),
+        (np.array([[1], [0]]), np.array([[0], [1]])),
+        (np.array([[1], [1]]), np.array([[1], [0]])),
+    ]
+
+    for i in range(train_epochs):
+        d = random.choice(data)
+        net.classify(d[0])
+        net.update_weights(d[1])
+
+    for pair in data:
+        net.classify(pair[0])
+        pred = net.forward_ai[-1]
+        print(f"Input: {pair[0].flatten()}\n" f"Output: {pair[1].flatten()}\n" f"Predicted: {pred.flatten()}\n")
