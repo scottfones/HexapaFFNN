@@ -8,7 +8,7 @@ def main():
     """Create the board and start the game."""
     ps = minimax.gen_states()
     pt = minimax.gen_table(ps)
-    net = graph.FeedForwardNet(graph.activation_sigmoid, 0.01, 20, 10, 10, 10)
+    net = graph.FeedForwardNet(graph.activation_sigmoid, 0.01, 20, 13, 10, 9)
 
     for i in range(500):
         d = random.choice(pt)
