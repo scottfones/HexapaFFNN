@@ -118,15 +118,11 @@ class FeedForwardNet:
                 m = self.in_units
             n = self.hidden_units
 
-            # tmp_w = np.random.normal(loc=0.0, scale=0.5, size=(m, n))
             tmp_w = np.random.randn(m, n) * 0.01
-            tmp_b = np.zeros((n, 1))
+            tmp_b = np.random.randn(n, 1) * 0.01
             self.network_layers.append([tmp_w, tmp_b])
 
         # Output Layer
-        # tmp_w = np.random.normal(
-        #    loc=0.0, scale=0.5, size=(self.hidden_units, self.out_units)
-        # )
         tmp_w = np.random.randn(self.hidden_units, self.out_units) * 0.01
         tmp_b = np.zeros((self.out_units, 1))
         self.network_layers.append([tmp_w, tmp_b])
@@ -183,14 +179,15 @@ class FeedForwardNet:
         L = np.power(train_ans - self.forward_ai[-1], 2)  # L2 loss function
         dL = -2 * (train_ans - self.forward_ai[-1])  # derivative of L2
         for i in reversed(range(len(self.network_layers))):
-            z_i = self.forward_zi[i]
-            gp_i = self.activ_func(z_i, True)  # derivative of activation function
+            in_i = self.forward_zi[i]
+            gp_i = self.activ_func(in_i, True)  # derivative of activation function
 
             if i == len(self.network_layers) - 1:
                 d_i = dL * gp_i
+
             else:
                 d_ip1 = self.back_delta[-1]  # most recent delta value
-                w_ip1 = self.network_layers[i + 1][0]  # weights
+                w_ip1 = self.network_layers[i+1][0]  # weights
                 d_i = (w_ip1 @ d_ip1) * gp_i
 
             self.back_delta.append(d_i)
@@ -202,11 +199,12 @@ class FeedForwardNet:
 
             # input to hidden transition
             if i == 0:
+                continue
                 x_i = self.train_data
-                w_i += (x_i @ d_i.T) * self.alpha
+                w_i += x_i @ d_i.T * self.alpha
             else:
                 a_i = self.forward_ai[i - 1]
-                w_i += (a_i @ d_i.T) * self.alpha
+                w_i += a_i @ d_i.T * self.alpha
 
 
 def test_adder(net: FeedForwardNet, epochs: int = 20) -> NoReturn:
