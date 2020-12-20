@@ -143,6 +143,9 @@ class FeedForwardNet:
         self.forward_ai = []
         self.train_data = train_data
 
+        if len(self.train_data.shape) == 1:
+            self.train_data = self.train_data.reshape((self.train_data.shape[0], 1))
+
         # Input to Hidden Transition
         b_0 = self.network_layers[0][1]
         w_0 = self.network_layers[0][0]
@@ -174,6 +177,9 @@ class FeedForwardNet:
         """
         self.back_delta = []
 
+        if len(train_ans.shape) == 1:
+            train_ans = train_ans.reshape((train_ans.shape[0], 1))
+
         L = np.power(train_ans - self.forward_ai[-1], 2)  # L2 loss function
         dL = -2 * (train_ans - self.forward_ai[-1])  # derivative of L2
         for i in reversed(range(len(self.network_layers))):
@@ -203,7 +209,7 @@ class FeedForwardNet:
                 w_i += (a_i @ d_i.T) * self.alpha
 
 
-def test_adder(net: FeedForwardNet, train_epochs: int = 100) -> NoReturn:
+def test_adder(net: FeedForwardNet, epochs: int = 20) -> NoReturn:
     data = [
         (np.array([[0], [1]]), np.array([[0], [1]])),
         (np.array([[0], [0]]), np.array([[0], [0]])),
@@ -211,7 +217,7 @@ def test_adder(net: FeedForwardNet, train_epochs: int = 100) -> NoReturn:
         (np.array([[1], [1]]), np.array([[1], [0]])),
     ]
 
-    for i in range(train_epochs):
+    for i in range(epochs):
         d = random.choice(data)
         net.classify(d[0])
         net.update_weights(d[1])
@@ -219,4 +225,8 @@ def test_adder(net: FeedForwardNet, train_epochs: int = 100) -> NoReturn:
     for pair in data:
         net.classify(pair[0])
         pred = net.forward_ai[-1]
-        print(f"Input: {pair[0].flatten()}\n" f"Output: {pair[1].flatten()}\n" f"Predicted: {pred.flatten()}\n")
+        print(
+            f"Input: {pair[0].flatten()}\n"
+            f"Output: {pair[1].flatten()}\n"
+            f"Predicted: {pred.flatten()}\n"
+        )
