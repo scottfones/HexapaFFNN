@@ -138,6 +138,31 @@ def capture_right(state: np.ndarray, src: Location) -> np.ndarray:
     return finish_action(state, dst, src)
 
 
+def create_statespace() -> List[np.ndarray]:
+    """Create the 70 non-terminal game states
+
+    Returns:
+        List[np.ndarray]: List of game states
+    """
+    space = set()
+    g = new_game()
+    state_queue = [g]
+
+    while state_queue:
+        s = state_queue.pop()
+
+        if is_terminal(s):
+            continue
+
+        acts = actions(s)
+        space.add(tuple(to_vector(s)))
+
+        for a in acts:
+            state_queue.append(result(s, a))
+
+    return space
+
+
 def finish_action(state: np.ndarray, dst: Location, src: Location) -> np.ndarray:
     """Complete an action by moving the pawn from src to dst and backfilling with 0.
 
