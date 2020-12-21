@@ -11,13 +11,15 @@ def main():
 
     2. Defines networks for adder and hexapawn, then test.
     """
+    print(f"POLICY TABLE (n=70):\n{minimax.create_policytable()}")
 
+    print("\n\nADDER NETWORK")
     net = graph.FeedForwardNet(graph.activation_relu, 0.01, 1, 2, 2, 2)
     graph.test_adder(net)
 
+    print("\n\nHexapawn Network")
     net = graph.FeedForwardNet(graph.activation_relu, 0.01, 20, 13, 10, 9)
     graph.test_hexa(net)
-
 
 
 if __name__ == "__main__":
