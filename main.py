@@ -17,7 +17,7 @@ def main():
     graph.test_adder(net)
 
     print("\n\nHEXAPAWN NETWORK")
-    net = graph.FeedForwardNet(graph.activation_relu, 0.01, 20, 13, 10, 9)
+    net = graph.FeedForwardNet(graph.activation_sigmoid, 0.01, 10, 10, 10, 9)
     graph.test_hexa(net)
 
 
