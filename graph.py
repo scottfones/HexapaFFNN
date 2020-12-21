@@ -280,4 +280,8 @@ def test_hexa(net: FeedForwardNet, epochs: int = 200) -> NoReturn:
         d = random.choice(train_data)
         net.classify(d[0])
         pred = net.forward_ai[-1]
-        print(f"Input: {d[0].flatten()}\n" f"Output: {d[1].flatten()}\n" f"Predicted: \n{pred}\n")
+        print(
+            f"Input: {d[0].flatten()}\n"
+            f"Output: {d[1].flatten()}\n"
+            f"Predicted: \n{pred}\n"
+        )
