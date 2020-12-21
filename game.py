@@ -1,11 +1,14 @@
 import numpy as np
-from typing import Callable, List, NoReturn, Tuple
+from typing import Callable, Dict, List, NoReturn, Tuple
 
 """Type alias for m by n location/index values"""
 Location = Tuple[int, int]
 
 """Type alias for list of legal actions"""
 ActionList = List[Tuple[Callable, Location]]
+
+"""Type alias for game state tuple"""
+GameState = Tuple[int, np.ndarray]
 
 
 def actions_check_advance(state: np.ndarray, src: Location) -> bool:
@@ -138,11 +141,11 @@ def capture_right(state: np.ndarray, src: Location) -> np.ndarray:
     return finish_action(state, dst, src)
 
 
-def create_statespace() -> List[np.ndarray]:
+def create_statespace() -> List[GameState]:
     """Create the 70 non-terminal, unique game states
 
     Returns:
-        List[np.ndarray]: List of game states
+        List[GameState]: List of game states
     """
     space = set()
     g = new_game()
@@ -213,7 +216,7 @@ def is_valid_index(idx: Location) -> bool:
     return True
 
 
-def new_game() -> np.ndarray:
+def new_game() -> GameState:
     """Generate new board and place pawns.
 
     Board is flipped upside down from writeup to allow
