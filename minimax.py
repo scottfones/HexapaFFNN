@@ -1,4 +1,4 @@
-from typing import Callable, Tuple
+from typing import Callable, Dict, List, Tuple
 import game
 import numpy as np
 
@@ -7,6 +7,42 @@ Location = Tuple[int, int]
 
 """Type alias for movement tuple"""
 GameMove = Tuple[Callable, Location]
+
+"""Type alias for list of legal actions"""
+MoveList = List[Tuple[Callable, Location]]
+
+"""Type alias for game state tuple"""
+GameState = Tuple[int, np.ndarray]
+
+
+def create_policytable() -> Dict[GameState, Tuple[int, MoveList]]:
+    """Create policytable by iterating through game state space.
+
+    Returns:
+        Dict[GameState, Tuple[int, MoveList]]: Map of state to utility and list of moves
+    """
+    space = game.create_statespace()
+    pol_tab = {}
+
+    for state in space:
+        move_list = []
+
+        # Convert 1x10 vector into game state tuple
+        state = (state[0], np.asarray(state[1:]).reshape(3, 3))
+
+        next_move = minimax_search(state)
+        s = state
+        while not game.is_terminal(s):
+            move_list.append(next_move)
+
+            next_move = minimax_search(s)
+            s = game.result(s, next_move)
+
+        u = game.utility(s)
+
+        pol_tab[tuple(game.to_vector(state))] = (u, move_list)
+
+    return pol_tab
 
 
 def minimax_search(state: np.ndarray) -> GameMove:
@@ -18,7 +54,7 @@ def minimax_search(state: np.ndarray) -> GameMove:
         state (np.ndarray): Current state
 
     Returns:
-        Tuple[Callable, game.Location]: Return the optimal move. Tuple of Callable and Location
+        GameMove: Return the optimal move. Tuple of Callable and Location
     """
     player = state[0]
     value, move = max_value(state)
