@@ -139,7 +139,7 @@ def capture_right(state: np.ndarray, src: Location) -> np.ndarray:
 
 
 def create_statespace() -> List[np.ndarray]:
-    """Create the 70 non-terminal game states
+    """Create the 70 non-terminal, unique game states
 
     Returns:
         List[np.ndarray]: List of game states
