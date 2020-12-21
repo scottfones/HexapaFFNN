@@ -1,7 +1,6 @@
 import game
 import minimax
 import graph
-import random
 
 
 def main():
