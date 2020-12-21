@@ -26,9 +26,11 @@ Notes:
 
     We define:
 """
+import game
+import minimax
 import numpy as np
 import random
-from typing import Callable, NoReturn
+from typing import Callable, NoReturn, Tuple
 
 
 def activation_relu(x: np.ndarray, ddx: bool = False) -> np.ndarray:
@@ -139,9 +141,6 @@ class FeedForwardNet:
         self.forward_ai = []
         self.train_data = train_data
 
-        if len(self.train_data.shape) == 1:
-            self.train_data = self.train_data.reshape((self.train_data.shape[0], 1))
-
         # Input to Hidden Transition
         b_0 = self.network_layers[0][1]
         w_0 = self.network_layers[0][0]
@@ -173,9 +172,6 @@ class FeedForwardNet:
         """
         self.back_delta = []
 
-        if len(train_ans.shape) == 1:
-            train_ans = train_ans.reshape((train_ans.shape[0], 1))
-
         L = np.power(train_ans - self.forward_ai[-1], 2)  # L2 loss function
         dL = -2 * (train_ans - self.forward_ai[-1])  # derivative of L2
         for i in reversed(range(len(self.network_layers))):
@@ -187,9 +183,8 @@ class FeedForwardNet:
 
             else:
                 d_ip1 = self.back_delta[-1]  # most recent delta value
-                w_ip1 = self.network_layers[i+1][0]  # weights
+                w_ip1 = self.network_layers[i + 1][0]  # weights
                 d_i = (w_ip1 @ d_ip1) * gp_i
-
             self.back_delta.append(d_i)
 
         self.back_delta.reverse()  # reverse so all arrays are syncd
@@ -199,7 +194,7 @@ class FeedForwardNet:
 
             # input to hidden transition
             if i == 0:
-                continue
+                # continue
                 x_i = self.train_data
                 w_i += x_i @ d_i.T * self.alpha
             else:
@@ -208,6 +203,13 @@ class FeedForwardNet:
 
 
 def test_adder(net: FeedForwardNet, epochs: int = 20) -> NoReturn:
+    """Automate training and testing of Adder given a FeedForwardNet.
+
+    Args:
+        net (FeedForwardNet): Instance of FeedForwardNet
+        epochs (int, optional): Number of training rounds. Defaults to 20.
+    """
+    # Input/Output Pairs from writeup
     data = [
         (np.array([[0], [1]]), np.array([[0], [1]])),
         (np.array([[0], [0]]), np.array([[0], [0]])),
@@ -215,11 +217,13 @@ def test_adder(net: FeedForwardNet, epochs: int = 20) -> NoReturn:
         (np.array([[1], [1]]), np.array([[1], [0]])),
     ]
 
+    # Train
     for i in range(epochs):
         d = random.choice(data)
         net.classify(d[0])
         net.update_weights(d[1])
 
+    # Test
     for pair in data:
         net.classify(pair[0])
         pred = net.forward_ai[-1]
@@ -228,3 +232,52 @@ def test_adder(net: FeedForwardNet, epochs: int = 20) -> NoReturn:
             f"Output: {pair[1].flatten()}\n"
             f"Predicted: {pred.flatten()}\n"
         )
+
+
+def vec_to_state(vec: np.ndarray) -> Tuple[int, np.ndarray]:
+    """Helper function to convert 1D Vector to Hexapawn state tuple
+
+    Args:
+        vec (np.ndarray): 1x10 Vector
+
+    Returns:
+        Tuple[int, np.ndarray]: Hexapawn state tuple
+    """
+    state_array = np.asarray(vec[1:]).reshape((3, 3))
+    return (vec[0], state_array)
+
+
+def test_hexa(net: FeedForwardNet, epochs: int = 200) -> NoReturn:
+    """Automate training and testing for Hexapawn given an instance of FeedForwardNet.
+
+    Args:
+        net (FeedForwardNet): Instance of FeedForwardNet
+        epochs (int, optional): Number of training rounds. Defaults to 200.
+    """
+    states = game.create_statespace()
+
+    # Create IO Pairs
+    train_data = []
+    for s in states:
+        state_tup = vec_to_state(s)
+        act = minimax.minimax_search(state_tup)
+
+        # format data for network
+        s = np.asarray(s).reshape((10, 1))
+        ns = game.to_vector(game.result(state_tup, act))
+        ns = ns[1:].reshape((9, 1))
+
+        train_data.append((s, ns))
+
+    # Train
+    for i in range(epochs):
+        d = random.choice(train_data)
+        net.classify(d[0])
+        net.update_weights(d[1])
+
+    # Test 10 pair sample
+    for i in range(10):
+        d = random.choice(train_data)
+        net.classify(d[0])
+        pred = net.forward_ai[-1]
+        print(f"Input: {d[0].flatten()}\n" f"Output: {d[1].flatten()}\n" f"Predicted: \n{pred}\n")
